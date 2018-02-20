@@ -1,0 +1,55 @@
+
+#ifndef MTK3339_H_
+#define MTK3339_H_
+
+//////////////////////////////////////////////////
+///
+/// GPS Commands
+///
+//////////////////////////////////////////////////
+
+#define PMTK_ACK						"$PMTK001"
+#define PMTK_SYS_MSG					"$PMTK010"
+#define PMTK_TXT_MSG					"$PMTK011"
+#define PMTK_CMD_HOT_START				"$PMTK101"
+#define PMTK_CMD_WARM_START				"$PMTK102"
+#define PMTK_CMD_COLD_START				"$PMTK103"
+#define PMTK_CMD_FULL_COLD_START		"$PMTK104"
+#define PMTK_SET_NMEA_UPDATERATE		"$PMTK220"
+#define PMTK_SET_NMEA_BAUDRATE			"$PMTK251"
+#define PMTK_API_SET_DGPS_MODE			"$PMTK301"
+#define PMTK_API_Q_DGPS_MODE			"$PMTK401"
+#define PMTK_API_DT_DGPS_MODE			"$PMTK501"
+#define PMTK_API_SET_SBAS_ENABLED		"$PMTK313"
+#define PMTK_API_Q_SBAS_ENABLED			"$PMTK413"
+#define PMTK_DT_SBAS_ENABLED			"$PMTK513"
+#define PMTK_API_SET_NMEA_OUTPUT		"$PMTK314"
+#define PMTK_API_Q_NMEA_OUTPUT			"$PMTK414"
+#define PMTK_API_DT_NMEA_OUTPUT			"$PMTK514"
+#define PMTK_API_SET_SBAS_MODE			"$PMTK319"
+#define PMTK_API_Q_SBAS_MODE			"$PMTK419"
+#define PMTK_API_DT_SBAS_MODE			"$PMTK519"
+#define PMTK_Q_RELEASE					"$PMTK605"
+#define PMTK_DT_RELEASE					"$PMTK705"
+#define PMTK_Q_EPO_INFO					"$PMTK607"
+#define PMTK_DT_EPO_INFO				"$PMTK707"
+#define PMTK_CMD_CLEAR_EPO				"$PMTK127"
+#define PMTK_SET_NAV					"$PMTK386"
+#define PMTK_Q_NAV_THRESHOLD			"$PMTK447"
+#define PMTK_DT_NAV_THRESHOLD			"$PMTK527"
+#define PMTK_CMD_STANDBY_MODE			"$PMTK161"
+#define PMTK_SET_AL_DEE_CFG				"$PMTK223"
+#define PMTK_CMD_PERIODIC_MODE			"$PMTK225"
+#define PMTK_CMD_AIC_MODE				"$PMTK286"
+#define PMTK_CMD_EASY_ENABLE			"$PMTK869"
+#define PMTK_LOCUS_CONFIG				"$PMTK187"
+#define PMTK_API_SET_DATUM 				"$PMTK330"
+#define PMTK_API_Q_DATUM 				"$PMTK430"
+#define PMTK_API_DT_DATUM				"$PMTK530"
+#define PMTK_API_SET_SUPPORT_QZSS_NMEA	"$PMTK351"
+#define PMTK_API_SET_STOP_QZSS			"$PMTK352"
+
+#define PMTK_PACKET_END					"\r\n"
+
+
+#endif /* MTK3339_H_ */
