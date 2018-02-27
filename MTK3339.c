@@ -37,7 +37,7 @@ void parseResponse(char* response, gpsData_t* gps) {
 	}
 
 	response = start;
-	char* allData[numData + 1];
+	char* allData[50];
 
 	while (*response != '\r') {
 		switch (state) {
