@@ -104,7 +104,7 @@ void parseResponse(char* response, gpsData_t* gps) {
 		gps->location.altitude = atof(allData[PMTK_GGA_ALTITUDE]);
 	}
 	else if (strcmp(allData[0], PMTK_GSA_RETURN) == 0) {
-
+		// Don't use any of the information yet
 	}
 	else if (strcmp(allData[0], PMTK_GSV_RETURN) == 0) {
 		uint8_t numMessages = atoi(allData[PMTK_GSV_NUM_MESSAGES]);
@@ -136,7 +136,7 @@ void parseResponse(char* response, gpsData_t* gps) {
 
 	}
 	else if (strcmp(allData[0], PMTK_VTG_RETURN) == 0) {
-
+		// Don't use any of the information yet
 	}
 
 }
