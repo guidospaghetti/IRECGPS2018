@@ -17,8 +17,7 @@ void sendGPSData(gpsData_t* gps);
 uint8_t genChecksum(char* message);
 void sendUARTA0(char* bytes, uint32_t length);
 void sendUARTA1(char* bytes, uint32_t length);
-char lastCharA0, lastCharA1;
-uint8_t serviceGPS = false;
+
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
@@ -46,20 +45,25 @@ int main(void) {
     	// Check if a message is coming from the GPS
     	if (lastByte0 == '$') {
     		// Initialize a buffer
-    		char bufferStart[100] = {};
+    		char bufferStart[150] = {};
     		char* buffer = bufferStart;
     		*buffer = '$';
     		buffer++;
-
+    		volatile uint8_t counter = 1;
     		// The GPS messages end with a new line character
     		// so loop until that happens
     		while (*buffer != '\n') {
+    			if (counter > 150) {
+    				break;
+    			}
     			// Increment the buffer
     			buffer++;
     			// Add the new character to the buffer
     			*buffer = lastByte0;
     			// Wait for the next byte
     			while(!hal_UART_DataAvailable(0));
+
+    			counter++;
     		}
 
     		// Parse the respone from the GPS
@@ -120,8 +124,11 @@ void sendGPSMessage(char* message) {
 
 void sendGPSData(gpsData_t* gps) {
 	char buffer[150];
-	sprintf(buffer, "Latitude: %f %c\tLongitude: %f %c\tAltitude: %fm", gps->location.latitude, gps->location.NS,
-			gps->location.longitude, gps->location.EW, gps->location.altitude);
+	sprintf(buffer, "Latitude: %f %c\tLongitude: %f %c\tAltitude: %f\r\n", gps->location.latitude,
+			(gps->location.NS ? gps->location.NS : 'X'),
+			gps->location.longitude,
+			(gps->location.EW ? gps->location.EW : 'X'),
+			gps->location.altitude);
 
 	sendUARTA1(buffer, strlen(buffer));
 }
