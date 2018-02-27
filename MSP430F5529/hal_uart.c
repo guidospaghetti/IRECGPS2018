@@ -17,9 +17,10 @@ void hal_UART_Init(void) {
 	UCA0CTL1 = UCSWRST;
 	// Set clock to SMCLK
 	UCA0CTL1 |= UCSSEL1;
-	// Set baud rate, 9600 baud, Assuming 16MHz / (131 + 6*256) = ~9600
-	UCA0BR0 = 131;
+	// Set baud rate, 9600 baud, Assuming 16MHz / (130 + 6*256) = ~9600
+	UCA0BR0 = 130;
 	UCA0BR1 = 6;
+	UCA0MCTL = UCBRS_6 + UCBRF_0;
 	// Turn on UART
 	UCA0CTL1 &= ~UCSWRST;
 	// Enable Interrupts
@@ -29,9 +30,10 @@ void hal_UART_Init(void) {
 	UCA1CTL1 = UCSWRST;
 	// Set clock to SMCLK
 	UCA1CTL1 |= UCSSEL1;
-	// Set baud rate, 115200 baud, Assuming 16MHz / (139 + 0*256) = ~115200
-	UCA1BR0 = 139;
+	// Set baud rate, 115200 baud, Assuming 16MHz / (138 + 0*256) = ~115200
+	UCA1BR0 = 138;
 	UCA1BR1 = 0;
+	UCA0MCTL = UCBRS_7 + UCBRF_0;
 	// Turn on UART
 	UCA1CTL1 &= ~UCSWRST;
 	// Enable Interrupts
