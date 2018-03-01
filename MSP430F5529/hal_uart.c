@@ -13,9 +13,10 @@ void hal_UART_Init(void) {
 	P3SEL |= BIT3 + BIT4;
 	P4SEL |= BIT4 + BIT5;
 
-	// Set software reset pin
+
+	// Set software reset pin GPS
 	UCA0CTL1 = UCSWRST;
-	// Set clock to SMCLK
+	// Set clock to SMclk
 	UCA0CTL1 |= UCSSEL1;
 	// Set baud rate, 9600 baud, Assuming 16MHz / (130 + 6*256) = ~9600
 	UCA0BR0 = 130;
@@ -26,14 +27,14 @@ void hal_UART_Init(void) {
 	// Enable Interrupts
 	UCA0IE |= UCRXIE;
 
-	// Set software reset pin
+	// Set software reset pin Computer
 	UCA1CTL1 = UCSWRST;
 	// Set clock to SMCLK
 	UCA1CTL1 |= UCSSEL1;
 	// Set baud rate, 115200 baud, Assuming 16MHz / (138 + 0*256) = ~115200
 	UCA1BR0 = 138;
 	UCA1BR1 = 0;
-	UCA0MCTL = UCBRS_7 + UCBRF_0;
+	UCA1MCTL = UCBRS_7 + UCBRF_0;
 	// Turn on UART
 	UCA1CTL1 &= ~UCSWRST;
 	// Enable Interrupts
