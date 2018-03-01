@@ -8,6 +8,8 @@
 #include "hal_uart.h"
 #include "msp430f5529.h"
 
+uint8_t dataAvailable0, dataAvailable1;
+
 void hal_UART_Init(void) {
 	// Set pins for UARTA0 and A1
 	P3SEL |= BIT3 + BIT4;
@@ -68,9 +70,21 @@ uint8_t hal_UART_RxByte(uint8_t channel) {
 uint8_t hal_UART_DataAvailable(uint8_t channel) {
 	switch (channel) {
 	case 0:
-		return UCA0IFG & UCRXIFG;
+		if (dataAvailable0 == 1) {
+			dataAvailable0 = 0;
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	case 1:
-		return UCA1IFG & UCRXIFG;
+		if (dataAvailable1 == 1) {
+			dataAvailable1 = 0;
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	default:
 		return 0;
 	}
@@ -96,6 +110,8 @@ __interrupt void UART_A0(void) {
 		break;
 	case USCI_UCRXIFG:
 		lastByte0 = UCA0RXBUF;
+		UCA0IFG &= ~UCRXIFG;
+		dataAvailable0 = 1;
 		break;
 	case USCI_UCTXIFG:
 		break;
@@ -112,6 +128,8 @@ __interrupt void UART_A1(void) {
 		break;
 	case USCI_UCRXIFG:
 		lastByte1 = UCA1RXBUF;
+		UCA1IFG &= ~UCRXIFG;
+		dataAvailable1 = 1;
 		break;
 	case USCI_UCTXIFG:
 		break;

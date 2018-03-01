@@ -61,7 +61,7 @@ int main(void) {
     			// Add the new character to the buffer
     			*buffer = lastByte0;
     			// Wait for the next byte
-    			while(!hal_UART_DataAvailable(0));
+    			while(hal_UART_DataAvailable(0) == 0);
 
     			counter++;
     		}
