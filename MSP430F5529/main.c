@@ -48,7 +48,8 @@ int main(void) {
     		char bufferStart[150] = {};
     		char* buffer = bufferStart;
     		*buffer = '$';
-    		buffer++;
+    		//buffer++;
+    		while(hal_UART_DataAvailable(0) == 0);//wait
     		volatile uint8_t counter = 1;
     		// The GPS messages end with a new line character
     		// so loop until that happens
@@ -56,12 +57,12 @@ int main(void) {
     			if (counter > 150) {
     				break;
     			}
+    			// Wait for the next byte
+                while(hal_UART_DataAvailable(0) == 0);//wait, moved from line 65
     			// Increment the buffer
     			buffer++;
     			// Add the new character to the buffer
     			*buffer = lastByte0;
-    			// Wait for the next byte
-    			while(hal_UART_DataAvailable(0) == 0);
 
     			counter++;
     		}
