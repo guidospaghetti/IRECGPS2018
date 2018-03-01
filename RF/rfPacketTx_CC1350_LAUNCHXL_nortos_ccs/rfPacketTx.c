@@ -50,7 +50,7 @@
 
 /* Packet TX Configuration */
 #define PAYLOAD_LENGTH      30
-#define PACKET_INTERVAL     (uint32_t)(4000000*0.5f) /* Set packet interval to 500ms */
+#define PACKET_INTERVAL     (uint32_t)(4000000*0.1f) /* Set packet interval to 100ms */
 
 /* Do power measurement */
 //#define POWER_MEASUREMENT
@@ -89,6 +89,11 @@ PIN_Config pinTable[] =
 };
 
 /***** Function definitions *****/
+char getLocation(int arg)
+{
+    char rocketLocation[PAYLOAD_LENGTH-2] = "testmessagepleaseignore12345";
+    return rocketLocation[arg];
+}
 
 void *mainThread(void *arg0)
 {
@@ -132,7 +137,7 @@ void *mainThread(void *arg0)
         uint8_t i;
         for (i = 2; i < PAYLOAD_LENGTH; i++)
         {
-            packet[i] = rand();
+            packet[i] = getLocation(i-2);
         }
 
         /* Set absolute TX time to utilize automatic power management */

@@ -17,6 +17,11 @@
                     <property Type="choicelist" Value="1" id="XDS110 Aux Port"/>
                 </choice>
             </property>
+            <property Type="choicelist" Value="1" id="Debug Probe Selection">
+                <choice Name="Select by serial number" value="0">
+                    <property Type="stringfield" Value="L40100XC" id="-- Enter the serial number"/>
+                </choice>
+            </property>
             <platform XML_version="1.2" id="platform_0">
                 <instance XML_version="1.2" desc="CC1350F128" href="devices/cc1350f128.xml" id="CC1350F128" xml="cc1350f128.xml" xmlpath="devices"/>
             </platform>
