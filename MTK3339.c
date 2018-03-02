@@ -12,6 +12,8 @@ typedef enum parserState_t {
 	END
 } parserState_t;
 
+typedef char fieldBuffer[PMTK_COMMAND_MAX_FIELD_LENGTH];
+
 void parseResponse(char* response, gpsData_t* gps);
 
 void readResponse(char* response, gpsData_t* gps) {
@@ -37,7 +39,7 @@ void parseResponse(char* response, gpsData_t* gps) {
 	}
 
 	response = start;
-	char* allData[50];
+	fieldBuffer allData[PMTK_COMMAND_MAX_NUM_FIELDS] = {};
 
 	while (*response != '\r') {
 		switch (state) {
