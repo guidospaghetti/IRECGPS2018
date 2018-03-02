@@ -125,11 +125,19 @@ void sendGPSMessage(char* message) {
 
 void sendGPSData(gpsData_t* gps) {
 	char buffer[150];
-	sprintf(buffer, "Latitude: %f %c\tLongitude: %f %c\tAltitude: %f\r\n", gps->location.latitude,
+	sprintf(buffer,
+			"Latitude: %f %c Longitude: %f %c Altitude: %f\r\n"
+			"Time: %f MM/DD/YY: %d/%d/%d Fix: %d\r\n",
+			gps->location.latitude,
 			(gps->location.NS ? gps->location.NS : 'X'),
 			gps->location.longitude,
 			(gps->location.EW ? gps->location.EW : 'X'),
-			gps->location.altitude);
+			gps->location.altitude,
+			gps->time.utcTime,
+			gps->time.month,
+			gps->time.day,
+			gps->time.year,
+			gps->fix);
 
 	sendUARTA1(buffer, strlen(buffer));
 }
@@ -138,7 +146,7 @@ uint8_t genChecksum(char* message) {
 	uint8_t checksum = 0;
 
 	while (*message != '\0') {
-		checksum = checksum ^= *message;
+		checksum ^= *message;
 		message++;
 	}
 
