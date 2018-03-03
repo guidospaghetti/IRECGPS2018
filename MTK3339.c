@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "MTK3339.h"
+#include "uart.h"
 
 
 
@@ -15,30 +17,95 @@ typedef enum parserState_t {
 typedef char fieldBuffer[PMTK_COMMAND_MAX_FIELD_LENGTH];
 
 void parseResponse(char* response, gpsData_t* gps);
+void sendGPSMessage(char* message);
+uint8_t genChecksum(char* message);
 
-void readResponse(char* response, gpsData_t* gps) {
-	parseResponse(response, gps);
+void initGPS(gpsParams_t* params) {
+	char message[50];
+	sprintf(message, PMTK_SET_NMEA_UPDATERATE ",%d", params->updateRate);
+	sendGPSMessage(message);
+
+	sprintf(message, PMTK_API_SET_NMEA_OUTPUT ",0,%d,%d,%d,%d,%d,0,0,0,0,0,0,0,0",
+			(params->outputFrames & PMTK_RMC) >> 0,
+			(params->outputFrames & PMTK_VTG) >> 1,
+			(params->outputFrames & PMTK_GGA) >> 2,
+			(params->outputFrames & PMTK_GSA) >> 3,
+			(params->outputFrames & PMTK_GSV) >> 4);
+	sendGPSMessage(message);
+}
+
+void sendGPSMessage(char* message) {
+	char checksumBytes[3];
+	uint32_t length = strlen(message);
+	char buffer[150] = {};
+	uint8_t checksum = genChecksum(message);
+	sprintf(checksumBytes, "%d", checksum);
+
+	// Create the message that will be sent to the GPS
+	buffer[0] = '$';
+	strcat(buffer, message);
+	strcat(buffer, "*");
+	strcat(buffer, checksumBytes);
+	strcat(buffer, "\r\n");
+
+	sendUARTA0(buffer, strlen(buffer));
+}
+
+uint8_t genChecksum(char* message) {
+	uint8_t checksum = 0;
+
+	while (*message != '\0') {
+		checksum ^= *message;
+		message++;
+	}
+
+	return checksum;
+}
+
+uint8_t checkForUpdate(gpsData_t* gps) {
+	// Check if a message is coming from the GPS
+	if (lastByte0 == '$') {
+		// Initialize a buffer
+		char bufferStart[150] = {};
+		char* buffer = bufferStart;
+		*buffer = '$';
+		//buffer++;
+		while(hal_UART_DataAvailable(0) == 0);//wait
+		volatile uint8_t counter = 1;
+		// The GPS messages end with a new line character
+		// so loop until that happens
+		while (*buffer != '\n') {
+			if (counter > 150) {
+				break;
+			}
+			// Wait for the next byte
+			while(hal_UART_DataAvailable(0) == 0);//wait, moved from line 65
+			// Increment the buffer
+			buffer++;
+			// Add the new character to the buffer
+			*buffer = lastByte0;
+
+			counter++;
+		}
+
+		// Parse the respone from the GPS
+		parseResponse(bufferStart, gps);
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
 void parseResponse(char* response, gpsData_t* gps) {
-	char* start = response;
 	char buffer[100];
 	char* bufferPtr = buffer;
 
-	int numData = 0;
 	int dataPos = 0;
 	int curDataLen = 0;
 	uint8_t checksumDone = 0;
 	parserState_t state = START;
 
-	while (*response != '\r') {
-		if (*response == ',' || *response == '*') {
-			numData++;
-		}
-		response++;
-	}
-
-	response = start;
 	fieldBuffer allData[PMTK_COMMAND_MAX_NUM_FIELDS] = {};
 
 	while (*response != '\r') {

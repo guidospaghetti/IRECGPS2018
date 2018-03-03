@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "MTK3339.h"
-#include "hal_uart.h"
+#include "uart.h"
 
 /*
  * main.c
@@ -12,12 +12,7 @@
 
 void setClock16MHz(void);
 void initMessage(void);
-void sendGPSMessage(char* message);
 void sendGPSData(gpsData_t* gps);
-uint8_t genChecksum(char* message);
-void sendUARTA0(char* bytes, uint32_t length);
-void sendUARTA1(char* bytes, uint32_t length);
-
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
@@ -33,42 +28,20 @@ int main(void) {
     // Setup UART on A1, 115200 baud, talk to computer
     initMessage();
 
-    // Send messages to GPS
-    sendGPSMessage(PMTK_API_SET_NMEA_OUTPUT_RMC_GGA);
-    sendGPSMessage(PMTK_SET_NMEA_UPDATERATE_1000);
+    // Setup GPS
+    gpsParams_t params;
+    params.updateRate = 1000;
+    params.outputFrames = PMTK_GGA | PMTK_RMC;
+    initGPS(&params);
 
     // Receive messages from GPS
 
     gpsData_t gps;
 
     while(1) {
-    	// Check if a message is coming from the GPS
-    	if (lastByte0 == '$') {
-    		// Initialize a buffer
-    		char bufferStart[150] = {};
-    		char* buffer = bufferStart;
-    		*buffer = '$';
-    		//buffer++;
-    		while(hal_UART_DataAvailable(0) == 0);//wait
-    		volatile uint8_t counter = 1;
-    		// The GPS messages end with a new line character
-    		// so loop until that happens
-    		while (*buffer != '\n') {
-    			if (counter > 150) {
-    				break;
-    			}
-    			// Wait for the next byte
-                while(hal_UART_DataAvailable(0) == 0);//wait, moved from line 65
-    			// Increment the buffer
-    			buffer++;
-    			// Add the new character to the buffer
-    			*buffer = lastByte0;
+    	uint8_t update = checkForUpdate(&gps);
 
-    			counter++;
-    		}
-
-    		// Parse the respone from the GPS
-    		readResponse(bufferStart, &gps);
+    	if (update) {
     		// Send the response over UART to computer
     		sendGPSData(&gps);
     	}
@@ -106,22 +79,7 @@ void initMessage(void) {
 	while (lastByte1 != '\r');
 }
 
-void sendGPSMessage(char* message) {
-	char checksumBytes[3];
-	uint32_t length = strlen(message);
-	char buffer[150] = {};
-	uint8_t checksum = genChecksum(message);
-	sprintf(checksumBytes, "%d", checksum);
 
-	// Create the message that will be sent to the GPS
-	buffer[0] = '$';
-	strcat(buffer, message);
-	strcat(buffer, "*");
-	strcat(buffer, checksumBytes);
-	strcat(buffer, "\r\n");
-
-	sendUARTA0(buffer, strlen(buffer));
-}
 
 void sendGPSData(gpsData_t* gps) {
 	char buffer[150];
@@ -140,34 +98,5 @@ void sendGPSData(gpsData_t* gps) {
 			gps->fix);
 
 	sendUARTA1(buffer, strlen(buffer));
-}
-
-uint8_t genChecksum(char* message) {
-	uint8_t checksum = 0;
-
-	while (*message != '\0') {
-		checksum ^= *message;
-		message++;
-	}
-
-	return checksum;
-}
-
-void sendUARTA0(char* bytes, uint32_t length) {
-	volatile int i;
-	for (i = 0; i < length; i++) {
-		while(hal_UART_SpaceAvailable(0) == 0);
-		hal_UART_TxByte((uint8_t)*bytes, 0);
-		bytes++;
-	}
-}
-
-void sendUARTA1(char* bytes, uint32_t length) {
-	volatile int i;
-	for (i = 0; i < length; i++) {
-		while(hal_UART_SpaceAvailable(1) == 0);
-		hal_UART_TxByte((uint8_t)*bytes, 1);
-		bytes++;
-	}
 }
 

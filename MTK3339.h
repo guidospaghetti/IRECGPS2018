@@ -148,6 +148,11 @@
 #define PMTK_VTG_MODE					9
 #define PMTK_VTG_CHECKSUM				10
 
+#define PMTK_RMC						0x01
+#define PMTK_VTG						0x02
+#define PMTK_GGA						0x04
+#define PMTK_GSA						0x08
+#define PMTK_GSV						0x10
 
 //////////////////////////////////////////////////
 ///
@@ -156,40 +161,46 @@
 //////////////////////////////////////////////////
 
 typedef struct satellite_t {
-	uint8_t satelliteID;
-	uint8_t elevation;
-	uint8_t azimuth;
-	uint8_t SNR;
+	uint8_t satelliteID;	/**< ID of the satellite*/
+	uint8_t elevation;		/**< Degrees above horizon*/
+	uint8_t azimuth;		/**< Degrees from north*/
+	uint8_t SNR;			/**< Signal to noise ratio*/
 } satellite_t;
 
 typedef struct time_t {
-	uint8_t day;
-	uint8_t month;
-	uint8_t year;
-	float utcTime;
+	uint8_t day;			/**< Current day of the month*/
+	uint8_t month;			/**< Current month of the year*/
+	uint8_t year;			/**< Current year*/
+	float utcTime;			/**< UTC time in the format of hhmmss.sss*/
 } time_t;
 
 typedef struct location_t {
-	float latitude;
-	float longitude;
-	float altitude;
-	char NS;
-	char EW;
+	float latitude;			/**< Latitude in the format of ddmm.sss*/
+	float longitude;		/**< Longitude in the format of ddmm.sss*/
+	float altitude;			/**< Altitude above mean sea level in meters*/
+	char NS;				/**< North or south indicator for latitude*/
+	char EW;				/**< East of west indicator for longitude*/
 } location_t;
 
 typedef struct gpsData_t {
-	time_t time;
-	uint8_t fix;
-	location_t location;
-	uint8_t status;
-	float speed;
-	float heading;
-	float magVar;
-	char magVarDir;
-	uint8_t numSatellites;
-	satellite_t allSatellites[PMTK_MAX_NUM_SATELLITES];
+	time_t time;			/**< Current time, contains the date and time*/
+	uint8_t fix;			/**< 0 - No fix, 1 - GPS fix, 2 Differential GPS fix*/
+	location_t location;	/**< Latitude, longitude, altitude*/
+	uint8_t status;			/**< A - Data Valid, V - Data Invalid*/
+	float speed;			/**< Speed in knots*/
+	float heading;			/**< Direction of movement*/
+	float magVar;			/**< Magnitude of magnetic field??*/
+	char magVarDir;			/**< Direction of magnetic field??*/
+	uint8_t numSatellites;	/**< How many satellites in view*/
+	satellite_t allSatellites[PMTK_MAX_NUM_SATELLITES]; /**< All the satellites connected*/
 } gpsData_t;
 
-void readResponse(char* buffer, gpsData_t* gps);
+typedef struct gpsParams_t {
+	uint16_t updateRate;	/**< Interval of update in milliseconds*/
+	uint8_t outputFrames;	/**< Which frames will be outputted from the GPS*/
+} gpsParams_t;
+
+void initGPS(gpsParams_t* params);
+uint8_t checkForUpdate(gpsData_t* gps);
 
 #endif /* MTK3339_H_ */
